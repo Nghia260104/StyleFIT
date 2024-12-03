@@ -1,0 +1,11 @@
+# Virtual environment
+venv
+/root/venv
+
+
+# Python
+__pycache__/
+
+# Secured data
+.env
+/root/.env

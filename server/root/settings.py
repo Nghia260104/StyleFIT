@@ -26,6 +26,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("No SECRET_KEY set for Django application. Please set one.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -56,13 +58,28 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres', # for postgres array field
+
+    # third-party
     'rest_framework',
     'api',
     'rest_framework_simplejwt',
     'corsheaders',
+
+    # Our apps
+    'account',
+    'cart',
+    'discount',
+    'notification',
+    'order',
+    'orderdetail',
+    'product',
+    'reply',
+    'review',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -70,7 +87,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'root.urls'

@@ -10,8 +10,8 @@ class Notification(models.Model):
     type = models.CharField(max_length=50, choices=[
         ('REVIEW', 'New Review'),
         ('ORDER', 'New Order'),
-        ('REPLY', 'New Reply')
-        ('STATUS', 'Order Status Update')
+        ('REPLY', 'New Reply'),
+        ('STATUS', 'Order Status Update'),
     ])
     content = models.TextField()
     reply = models.ForeignKey(Reply, on_delete=models.CASCADE, blank=True, null=True)

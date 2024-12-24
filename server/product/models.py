@@ -3,7 +3,7 @@ from account.models import Account
 
 # Create your models here.
 class Product(models.Model):
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    seller = models.ForeignKey(Account, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     description = models.TextField()
     quantity_in_stock = models.IntegerField(default=0)

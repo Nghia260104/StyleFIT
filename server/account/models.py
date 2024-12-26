@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 
 def validate_base64(value):
@@ -7,7 +8,12 @@ def validate_base64(value):
 
 # Create your models here.
 class Account(models.Model):
-    email = models.EmailField(unique=True)
+    email = models.EmailField(
+        unique=True,
+        error_messages={
+            'unique': 'Email already exists'
+        }
+    )
     password = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     profile_name = models.CharField(max_length=255)
@@ -27,6 +33,9 @@ class Account(models.Model):
     )
     phone = models.CharField(max_length=15, blank=True)
     address = models.TextField(blank=True)
+
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
 
     def __str__(self):
         return self.email

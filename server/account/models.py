@@ -3,8 +3,9 @@ from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
 
 def validate_base64(value):
-    if value and not value.startswith(('data:image/', 'data:application/')):
-        raise ValidationError('Invalid base64 format')
+    # if value and not value.startswith(('data:image/', 'data:application/')):
+    #     raise ValidationError('Invalid base64 format')
+    pass
 
 # Create your models here.
 class Account(models.Model):

@@ -3,20 +3,20 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Account
-from .serializers import AccountSerializer, RegistrationSerializer
+from .serializers import AccountSerializer, RegistrationSerializer, LoginSerializer
 
 class AccountViewSet(viewsets.ModelViewSet):
     queryset = Account.objects.all()
-    # serializer_class = RegistrationSerializer
-    # permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.action == 'create':
             return RegistrationSerializer
+        elif self.action == 'login':
+            return LoginSerializer
         return AccountSerializer
 
     def get_permissions(self):
-        if self.action == 'create':
+        if self.action in ['create', 'login']:
             return [AllowAny()]
         return [IsAuthenticated()]
 
@@ -39,4 +39,17 @@ class AccountViewSet(viewsets.ModelViewSet):
                     {"error": str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'])
+    def login(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(
+                {
+                    "message": "Login successful",
+                    "email": serializer.validated_data['email'],
+                    "role": serializer.validated_data['role']
+                }, 
+                status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

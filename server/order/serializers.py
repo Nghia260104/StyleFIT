@@ -5,3 +5,28 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
+        
+class CreateOrderSerializer(serializers.ModelSerializer):
+    buyer = serializers.IntegerField(required=True)
+    product = serializers.ListField(child=serializers.IntegerField(), allow_empty = True)
+    quantity = serializers.ListField(child=serializers.IntegerField(), allow_empty = True)
+    
+    class Meta:
+        model = Order
+        fields = ["buyer", "product", "quantity"]
+        
+        
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    account = serializers.IntegerField(required=True)
+    order = serializers.IntegerField(required=True)
+    new_status = serializers.ChoiceField(choices=[
+        ('PENDING', 'Pending'),
+        ('PROCESSING', 'Processing'),
+        ('SHIPPED', 'Shipped'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELLED', 'Cancelled')
+    ])
+    
+    class Meta:
+        model = Order
+        fields = ["account", "order", "new_status"]

@@ -1,10 +1,7 @@
-from django.urls import path, include
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views import DiscountViewSet
 
-router = DefaultRouter()
-router.register(r'discount', DiscountViewSet, basename='discount')
-
 urlpatterns = [
-    path('', include(router.urls)),
+    path('create/', DiscountViewSet.as_view({'post': 'create_discount'}), name='create_discount'),
 ]

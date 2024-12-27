@@ -8,6 +8,11 @@ from .serializers import DiscountSerializer, DiscountCreateSerializer
 class DiscountViewSet(viewsets.ModelViewSet):
     queryset = Discount.objects.all()
 
+    def get_serializer_class(self):
+        if self.action == 'create_discount':
+            return DiscountCreateSerializer
+        return DiscountSerializer
+
     @action(detail=False, methods=['post'])
     def create_discount(self, request):
         serializer = DiscountCreateSerializer(data=request.data)
@@ -17,7 +22,7 @@ class DiscountViewSet(viewsets.ModelViewSet):
                 return Response(
                     {
                         "message": "Discount created successfully",
-                        "seller": discount.seller,
+                        "seller": discount.seller.username,
                         "season": discount.season,
                         "year": discount.year,
                         "limit": discount.limit
@@ -30,6 +35,3 @@ class DiscountViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
-# Create your views here.

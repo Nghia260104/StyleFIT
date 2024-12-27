@@ -32,4 +32,4 @@ class Account(AbstractUser):
         self.password = make_password(raw_password)
     
     def __str__(self):
-        return self.email
+        return self.username

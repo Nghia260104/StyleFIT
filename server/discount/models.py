@@ -27,7 +27,7 @@ class Discount(models.Model):
     )
     limit = models.IntegerField()   
     used_number = models.IntegerField(default=0)
-    year = models.IntegerField(default=datetime.now(timezone.utc).year)
+    year = models.IntegerField(default=datetime.now(timezone.utc).year, null=True)
 
     def __str__(self):
         return self.name

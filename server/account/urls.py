@@ -1,10 +1,8 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
 from .views import AccountViewSet
 
-router = DefaultRouter()
-router.register(r'accounts', AccountViewSet, basename='account')
-
 urlpatterns = [
-    path('', include(router.urls)),
+    path('register/', AccountViewSet.as_view({'post': 'register'}), name='register'),
+    path('login/', AccountViewSet.as_view({'post': 'login'}), name='login'),
 ]

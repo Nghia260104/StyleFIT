@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from account.models import Account
+from datetime import datetime, timezone
 
 # Create your models here.
 class Discount(models.Model):
@@ -11,7 +12,7 @@ class Discount(models.Model):
     percentage = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(100)]
     )
-    price = models.IntegerField()
+    # price = models.IntegerField()
     season = models.CharField(max_length=50)
     # Using ArrayField for PostgreSQL array support
     product = ArrayField(
@@ -26,6 +27,7 @@ class Discount(models.Model):
     )
     limit = models.IntegerField()   
     used_number = models.IntegerField(default=0)
+    year = models.IntegerField(default=datetime.now(timezone.utc).year)
 
     def __str__(self):
         return self.name

@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100)),
                 ('description', models.TextField()),
                 ('percentage', models.IntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(100)])),
-                ('price', models.IntegerField()),
+                # ('price', models.IntegerField()),
                 ('season', models.CharField(max_length=50)),
                 ('product', django.contrib.postgres.fields.ArrayField(base_field=models.IntegerField(), blank=True, help_text='Array of product IDs', size=None)),
                 ('category', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), blank=True, help_text='Array of category names', size=None)),

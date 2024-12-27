@@ -12,6 +12,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         return ReviewSerializer
 
+    @action(detail=False, methods=['post'])
     def create_review(self, request):
         serializer = ReviewSerializer(data=request.data)
         if serializer.is_valid():

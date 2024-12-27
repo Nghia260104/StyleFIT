@@ -63,7 +63,19 @@ class DiscountEditSerializer(serializers.ModelSerializer):
                     {"limit": "New limit cannot be less than current used number"}
                 )
 
-        
+        if 'used_number' in data:
+            # Check if new used_number would be greater than limit
+            instance = self.instance
+            limit = data.get('limit', instance.limit)
+            if data['used_number'] > limit:
+                raise serializers.ValidationError(
+                    {"used_number": "Used number cannot exceed limit"}
+                )
+
+            # Check if used_number equals limit
+            if data['used_number'] == limit:
+                # We 'll handle deletion in the view
+                data['should_delete'] = True
 
         # Check if season is being updated and if a discount already exists for that season
         if 'season' in data and data['season'] != instance.season:

@@ -33,3 +33,10 @@ class ReplyViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def get_replies(self, request, pk=None):
+        # pk is the review ID
+        replies = Reply.objects.filter(review=pk)
+        serializer = ReplySerializer(replies, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

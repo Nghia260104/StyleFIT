@@ -38,6 +38,7 @@ class DiscountCreateSerializer(serializers.ModelSerializer):
         return data
     
 class DiscountEditSerializer(serializers.ModelSerializer):
+    seller_id = serializers.IntegerField(write_only=True,required=True)
     name = serializers.CharField(required=False, allow_blank=True)
     description = serializers.CharField(required=False, allow_blank=False)  # Don't allow blank for required fields
     percentage = serializers.IntegerField(required=False, allow_null=False)  # Don't allow null for required fields
@@ -46,12 +47,20 @@ class DiscountEditSerializer(serializers.ModelSerializer):
     category = serializers.ListField(child=serializers.CharField(), required=False, allow_empty=True)
     limit = serializers.IntegerField(required=False, allow_null=False)  # Don't allow null for required fields
     used_number = serializers.IntegerField(required=False, allow_null=False)  # Don't allow null for required fields
-
+    
     class Meta:
         model = Discount
-        fields = ['name', 'description', 'percentage', 'season', 'product', 'category', 'limit', 'used_number']
+        fields = ['seller_id', 'name', 'description', 'percentage', 'season', 'product', 'category', 'limit', 'used_number']
 
     def validate(self, data):
+        try:
+            seller = Account.objects.get(id=data['seller_id'])
+        except Account.DoesNotExist:
+            raise serializers.ValidationError({"seller_id": "Seller not found"})
+        
+        if seller.role != 'SELLER':
+            raise serializers.ValidationError({"seller_id": "Only sellers can edit discounts"})
+
         if 'limit' in data:
             if data['limit'] is None or data['limit'] <= 0:
                 raise serializers.ValidationError({"limit": "Limit must be greater than 0"})
@@ -89,10 +98,10 @@ class DiscountEditSerializer(serializers.ModelSerializer):
         return data
 
     def update(self, instance, validated_data):
-        # Remove None values from validated_data to prevent overwriting with None
+        validated_data.pop('seller_id')  # Remove seller_id from validated_data
+
         validated_data = {k: v for k, v in validated_data.items() if v is not None}
         
-        # Remove empty strings for required fields
         if 'description' in validated_data and validated_data['description'] == '':
             validated_data.pop('description')
         if 'season' in validated_data and validated_data['season'] == '':

@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .models import Discount
+from .models import Discount, Account
 from .serializers import DiscountSerializer, DiscountCreateSerializer, DiscountEditSerializer
 
 class DiscountViewSet(viewsets.ModelViewSet):
@@ -42,16 +42,32 @@ class DiscountViewSet(viewsets.ModelViewSet):
     def edit_discount(self, request, pk=None):
         try:
             discount = self.get_object()
+            seller_id = request.data.get('seller_id')  # Get seller_id from request data
+            print(seller_id)
+            if not seller_id:
+                return Response({
+                    "status": "error",
+                    "message": "seller_id is required"
+                }, status=status.HTTP_400_BAD_REQUEST)
 
+            # Check if seller exists
+            try:
+                seller = Account.objects.get(id=seller_id)
+            except Account.DoesNotExist:
+                return Response({
+                    "status": "error",
+                    "message": "Seller not found"
+                }, status=status.HTTP_404_NOT_FOUND)
+            
             # Check permissions
-            if request.user.id != discount.seller.id:
+            if int(seller_id) != discount.seller.id:
                 return Response(
                     {"status": "error",
                      "message": "You don't have permission to edit this discount"
                     }, status=status.HTTP_403_FORBIDDEN)
             
             # Check if the user is a seller
-            if request.user.role != 'SELLER':
+            if seller.role != 'SELLER':
                 return Response({
                     "status": "error",
                     "message": "Only sellers can edit discounts"

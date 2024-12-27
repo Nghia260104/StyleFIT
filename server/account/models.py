@@ -5,8 +5,8 @@ from django.contrib.auth.hashers import make_password
 # Create your models here.
 class Account(AbstractUser):
     # Attributes
-    email = models.EmailField(unique=True)
-    password = models.CharField()
+    # email = models.EmailField(unique=True)
+    # password = models.CharField()
     created_at = models.DateTimeField(auto_now_add=True)
     profile_name = models.CharField(max_length=255)
     verified = models.BooleanField(default=False)
@@ -27,9 +27,6 @@ class Account(AbstractUser):
     #     constraints = [
     #         models.UniqueConstraint(fields=['email', 'role'], name='unique_email_role')
     #     ]
-    
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'profile_name']
     
     def set_password(self, raw_password):
         self.password = make_password(raw_password)

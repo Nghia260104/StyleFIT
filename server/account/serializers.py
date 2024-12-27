@@ -9,16 +9,17 @@ class AccountSerializer(serializers.ModelSerializer):
         fields = ('id', 'email', 'profile_name', 'role', 'profile_photo', 'phone', 'address', 'verified')
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True)
+    # password = serializers.CharField(write_only=True)
     
     class Meta:
         model = Account
         fields = ('email', 'password', 'profile_name', 'role', 'username')
         extra_kwargs = {
             'password': {'write_only': True},
-            'email': {'required': True},
+            'email': {'required': False},
             'profile_name': {'required': True},
-            'username': {'required': True}
+            'username': {'required': True},
+            'role': {'required': True},
         }
 
     def create(self, validated_data):

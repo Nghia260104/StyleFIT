@@ -20,6 +20,10 @@ class CartViewSet(ViewSet):
         except:
             return Response({"error": "Cart item not found"}, status=status.HTTP_400_BAD_REQUEST)
         
+        if quantity <= 0:
+            cart_item.delete()
+            return Response({"delete": "Cart item deleted"}, status=status.HTTP_200_OK)
+        
         cart_item.quantity = quantity
         cart_item.save()
         

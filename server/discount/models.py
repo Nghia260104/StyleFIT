@@ -31,3 +31,16 @@ class Discount(models.Model):
 
     def __str__(self):
         return self.name
+    
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.used_number > self.limit:
+            raise ValidationError({'used_number': 'Used number cannot exceed limit'})
+        
+    def save(self, *args, **kwargs):
+        self.clean()
+        # Check if used_number equals limit
+        if self.used_number == self.limit:
+            self.delete()
+            return
+        super().save(*args, **kwargs)

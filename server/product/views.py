@@ -91,7 +91,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     #     )
     
     @action(detail=False, methods=['get'])
-    def get_products(self, request, pk=None):
+    def get_products_seller(self, request, pk=None):
         products = Product.objects.filter(seller=pk)
         res_data =[]
         
@@ -117,3 +117,16 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         # Return the response
         return Response(res_data)
+    
+    @action(detail=False, methods=['get'])
+    def get_products(self, request):
+        # get 50 products
+        products = Product.objects.all()[:50]
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'])
+    def get_product(self, request, pk=None):
+        product = Product.objects.get(id=pk)
+        serializer = ProductSerializer(product)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -6,8 +6,10 @@ from .models import Order
 from .serializers import *
 from product.models import Product
 from account.models import Account
+from discount.models import Discount
 from orderdetail.models import OrderDetail
 from orderdetail.views import OrderDetailViewSet
+from django.db.models import Q
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -17,6 +19,8 @@ class OrderViewSet(viewsets.ModelViewSet):
             return CreateOrderSerializer
         elif (self.action == 'update_status'):
             return UpdateOrderSerializer
+        elif (self.action == 'get_order'):
+            return GetOrderSerializer
         return OrderSerializer
     
     @action(detail=False, methods=['post'])
@@ -24,6 +28,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         buyer_id = request.data.get('buyer')
         product_id = request.data.get('product')
         quantity = request.data.get('quantity')
+        discount_id = request.data.get('discount')
         
         if not buyer_id or not product_id or quantity is None:
             return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
@@ -46,6 +51,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         
         try:
             print(product_id)
+            discount = Discount.objects.get(id = discount_id)
+            max_price = 0
+            total_price = 0
             for i in range(len(product_id)):
                 print('Get product')
                 product = Product.objects.get(id = product_id[i])
@@ -53,9 +61,23 @@ class OrderViewSet(viewsets.ModelViewSet):
                 if (product.quantity_in_stock < quantity[i]):
                     order.delete()
                     return Response({"error": "Quantity does not sufficient"}, status=status.HTTP_400_BAD_REQUEST)
+                
+                if (product.id in discount.product or product.category in discount.category):
+                    max_price = max(max_price, product.price)
+                total_price += product.price
                 queue.append({"quantity": quantity[i], "order": order.id, "product": product_id[i]})
             print('Order detail')
             OrderDetailViewSet.backend_create_orderdetails(data=queue)
+            if (max_price > 0):
+                max_price = int(discount.percentage * max_price / 100)
+                total_price = total_price - max_price
+                discount.used_number += 1
+                if (discount.limit <= discount.used_number):
+                    discount.delete()
+                else:
+                    discount.save()
+            order.total_price = total_price
+            order.save()
             print('Done')
         except:
             order.delete()
@@ -97,3 +119,31 @@ class OrderViewSet(viewsets.ModelViewSet):
                 return Response({"error": "Something happened"}, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({"error": "Account or Order does not exist"})
+        
+    @action(detail=False, methods=['get'])
+    def get_order(self, request):
+        buyer_id = request.query_params.get('buyer', None)
+        order_status = request.query_params.get('status', None)
+        order_id = request.query_params.get('order', None)
+        sort = request.query_params.get('sort', None)
+        
+        filter = Q()
+        if buyer_id:
+            filter &= Q(buyer=buyer_id)
+        if order_status:
+            filter &= Q(status=order_status)
+        if order_id:
+            filter &= Q(id = order_id)
+        
+        filtered_data = Order.objects.all().filter(filter)
+        
+        if sort == 'asc':
+            filtered_data = filtered_data.order_by('create_at')
+        elif sort == 'desc':
+            filtered_data = filtered_data.order_by('-created_at')
+            
+        # print(filtered_data)
+            
+        serializer = OrderSerializer(filtered_data, many=True)
+        
+        return Response(serializer.data, status=status.HTTP_200_OK)

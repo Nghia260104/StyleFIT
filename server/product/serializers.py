@@ -37,7 +37,7 @@ class ProductAddSerializer(serializers.ModelSerializer):
         if Product.objects.filter(seller=seller, name=data['name']).exists():
             raise serializers.ValidationError("Product already exists")
 
-        reviews = Review.objects.filter(product=data['name'], seller=seller)
+        # reviews = Review.objects.filter(product=data['name'], seller=seller)
         # if reviews.exists():
         #     rating = 0
         #     for review in reviews:
@@ -46,7 +46,7 @@ class ProductAddSerializer(serializers.ModelSerializer):
         # else:
         #     data['rating'] = 0.0
 
-        # return data
+        return data
     
 class ProductRemoveSerializer(serializers.ModelSerializer):
     class Meta:

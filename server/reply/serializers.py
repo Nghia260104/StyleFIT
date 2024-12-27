@@ -19,6 +19,7 @@ class ReplySerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['seller'].role != 'SELLER':
             raise serializers.ValidationError("Only sellers can add replies")
-        if not Review.objects.filter(id=data['review']).exists():
+        review = Review.objects.get(id=data['review'].id)
+        if review is None:
             raise serializers.ValidationError("Review does not exist")
         return data

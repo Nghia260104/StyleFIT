@@ -5,4 +5,5 @@ urlpatterns = [
     path("discount/", include("discount.urls")),
     path("product/", include("product.urls")),
     path("orderdetail/", include("orderdetail.urls")),
+    path("order/", include("order.urls")),
 ]

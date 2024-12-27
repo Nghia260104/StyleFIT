@@ -52,3 +52,31 @@ class OrderDetailViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def get_orderdetails(self, request, pk=None):
+        try:
+            # Retrieve OrderDetail instances related to the specified order ID
+            orderdetails = OrderDetail.objects.filter(order_id=pk)
+            response_data = []
+
+            for orderdetail in orderdetails:
+                product = orderdetail.product  # This is already a Product object
+                name = product.name  # Access the name directly
+                price = product.price * orderdetail.quantity  # Compute total price
+
+                response_data.append({
+                    "id": product.id,  # Use the ID directly
+                    "product": name,
+                    "quantity": orderdetail.quantity,
+                    "unitPrice": product.price,
+                    "price": price,
+                })
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

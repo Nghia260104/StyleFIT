@@ -4,4 +4,5 @@ from .views import OrderDetailViewSet
 
 urlpatterns = [
     path('create/', OrderDetailViewSet.as_view({'post': 'create_orderdetails'}), name='create_orderdetails'),
+    path('get/<int:pk>/', OrderDetailViewSet.as_view({'get': 'get_orderdetails'}), name='get_orderdetails'),
 ]

@@ -66,8 +66,6 @@ class AccountViewSet(viewsets.ModelViewSet):
             "status": "error",
             "message": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
-    
-
 
     @action(detail=False, methods=['post'])
     def change_password(self, request):
@@ -122,3 +120,16 @@ class AccountViewSet(viewsets.ModelViewSet):
             "status": "error",
             "message": serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=False, methods=['get'])
+    def get_account(self, request, pk=None):
+        user = Account.objects.get(id=pk)
+        return Response({
+            "email": user.email,
+            "profile_name": user.profile_name,
+            "role": user.role,
+            "id": user.id,
+            "verified": user.verified,
+            "phone": user.phone,
+            "address": user.address,
+            "profile_photo": user.profile_photo,
+        }, status=status.HTTP_200_OK)

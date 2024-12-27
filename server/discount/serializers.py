@@ -104,3 +104,14 @@ class DiscountEditSerializer(serializers.ModelSerializer):
             
         instance.save()
         return instance
+    
+class DiscountListSerializer(serializers.ModelSerializer):
+    seller_name = serializers.CharField(source='seller.username', read_only=True)
+
+    class Meta:
+        model = Discount
+        fields = [
+            'id', 'seller_name', 'name', 'description', 'percentage',
+            'season', 'product', 'category', 'limit', 'used_number', 'year'
+        ]
+        

@@ -29,7 +29,7 @@ class DiscountCreateSerializer(serializers.ModelSerializer):
         season = data['season']
         year = data['year']
         account_role = Account.objects.get(id=seller).role
-        if account_role != 'seller':
+        if account_role != 'Seller':
             raise serializers.ValidationError("Only sellers can create discounts")
         if Discount.objects.filter(seller=seller, season=season, year=year).exists():
             raise serializers.ValidationError("Discount already exists")

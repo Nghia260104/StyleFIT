@@ -8,7 +8,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
         extra_kwargs = {
-            'seller': {'write_only': True}
+            'seller': {'write_only': False}
         }
 
 class ProductAddSerializer(serializers.ModelSerializer):
@@ -16,7 +16,7 @@ class ProductAddSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
         extra_kwargs = {
-            'seller': {'write_only': True}
+            'seller': {'write_only': False}
         }
 
     def create(self, validated_data):
@@ -53,7 +53,7 @@ class ProductRemoveSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['name', 'seller']
         extra_kwargs = {
-            'name': {'write_only': True}
+            'name': {'write_only': False}
         }
 
     def validate(self, data):

@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Product
 from .serializers import ProductSerializer, ProductAddSerializer, ProductRemoveSerializer
 from review.models import Review
+from account.models import Account
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -122,11 +123,53 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_products(self, request):
         # get 50 products
         products = Product.objects.all()[:50]
+        res_data =[]
+        
         serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        for i in range(len(serializer.data)):
+            username = products[i].seller.username
+            reviews = Review.objects.filter(product=serializer.data[i]['id'])
+            rating_count = reviews.count()
+            
+            # Calculate the average rating
+            average_rating = 0.0
+            if reviews.exists():
+                total_rating = sum(review.rating for review in reviews)
+                average_rating = total_rating / rating_count
+            else:
+                average_rating = 0.0
+
+            res_data.append({
+                "title": serializer.data[i]['name'],
+                "seller": username,
+                "price": serializer.data[i]['price'],
+                "rating": average_rating,
+                "ratingcount": rating_count
+            })
     
+        return Response(res_data)
+
     @action(detail=False, methods=['get'])
     def get_product(self, request, pk=None):
         product = Product.objects.get(id=pk)
         serializer = ProductSerializer(product)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        reviews = Review.objects.filter(product=pk)
+        rating_count = reviews.count()
+        average_rating = 0.0
+        username = product.seller.username
+        if reviews.exists():
+            total_rating = sum(review.rating for review in reviews)
+            average_rating = total_rating / rating_count
+        else:
+            average_rating = 0.0
+
+        return Response(
+            {
+                "title": serializer.data['name'],
+                "seller": username,
+                "price": serializer.data['price'],
+                "rating": average_rating,
+                "ratingcount": rating_count
+            },
+            status=status.HTTP_200_OK
+        )

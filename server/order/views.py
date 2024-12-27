@@ -77,19 +77,19 @@ class OrderViewSet(viewsets.ModelViewSet):
         try:
             account = Account.objects.get(id = account_id)
             order = Order.objects.get(id = order_id)
-            if (account.role == 'CUSTOMER' and new_status == 'Cancelled' and order.status != 'DELIVERED'):
+            if (account.role == 'CUSTOMER' and new_status == 'CANCELLED' and order.status != 'DELIVERED'):
                 order.status = 'CANCELLED'
                 order.save()
                 return Response({"message": "Cancel successfully"}, status=status.HTTP_200_OK)
-            elif (account.role == 'CUSTOMER' and new_status == 'Delivered' and order.status == 'SHIPPED'):
+            elif (account.role == 'CUSTOMER' and new_status == 'DELIVERED' and order.status == 'SHIPPED'):
                 order.status = 'DELIVERED'
                 order.save()
                 return Response({"message": "Deliver successfully"}, status=status.HTTP_200_OK)
-            elif (account.role == 'SELLER' and new_status == 'Processing' and order.status == 'PENDING'):
+            elif (account.role == 'SELLER' and new_status == 'PROCESSING' and order.status == 'PENDING'):
                 order.status = 'PROCESSING'
                 order.save()
                 return Response({"message": "Order is in process"}, status=status.HTTP_200_OK)
-            elif (account.role == 'SELLER' and new_status == 'Shipped' and order.status == 'PROCESSING'):
+            elif (account.role == 'SELLER' and new_status == 'SHIPPED' and order.status == 'PROCESSING'):
                 order.status = 'SHIPPED'
                 order.save()
                 return Response({"message": "Order is being delivered"}, status=status.HTTP_200_OK)

@@ -19,7 +19,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 class UpdateOrderSerializer(serializers.ModelSerializer):
     account = serializers.IntegerField(required=True)
     order = serializers.IntegerField(required=True)
-    new_status = serializers.ChoiceField(choices=[
+    status = serializers.ChoiceField(choices=[
         ('PENDING', 'Pending'),
         ('PROCESSING', 'Processing'),
         ('SHIPPED', 'Shipped'),
@@ -29,4 +29,4 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Order
-        fields = ["account", "order", "new_status"]
+        fields = ["account", "order", "status"]

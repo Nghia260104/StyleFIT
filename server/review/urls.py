@@ -4,4 +4,5 @@ from .views import ReviewViewSet
 
 urlpatterns = [
     path('create/', ReviewViewSet.as_view({'post': 'create_review'}), name='create_review'),
+    path('get/<int:pk>/', ReviewViewSet.as_view({'get': 'get_reviews'}), name='get_reviews'),
 ]

@@ -34,3 +34,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def get_reviews(self, request, pk=None):
+        # pk is the product ID
+        reviews = Review.objects.filter(product=pk)
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

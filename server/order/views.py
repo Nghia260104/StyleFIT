@@ -6,6 +6,8 @@ from .models import Order
 from .serializers import OrderSerializer
 from product.models import Product
 from account.models import Account
+from orderdetail.models import OrderDetail
+from orderdetail.views import OrderDetailViewSet
 
 class OrderViewSet(ViewSet):
     @action(detail=False, methods=['post'])
@@ -17,18 +19,28 @@ class OrderViewSet(ViewSet):
         if not buyer_id or not product_id or quantity is None:
             return Response({"error": "Missing required fields"}, status=status.HTTP_400_BAD_REQUEST)
         
+        order = Order.objects.create(buyer= buyer_id, total_price = 0, status = 'PENDING')
+        serializer = OrderSerializer(data=order)
+        
+        queue = []
+        
         try:
-            product = Product.objects.get(id = product_id)
+            for i in range(product_id):
+                product = Product.objects.get(id = product_id)
+                if (product.quantity_in_stock < quantity):
+                    order.delete()
+                    return Response({"error": "Quantity does not sufficient"}, status=status.HTTP_400_BAD_REQUEST)
+                queue.append({"quantity": quantity, "order": order.id, "product": product_id})
+                
+            OrderDetailViewSet.backend_create_orderdetails(data=queue)
         except:
-            return Response({"error": "Product does not exist"}, status=status.HTTP_400_BAD_REQUEST)
-        finally:
-            if product.quantity_in_stock < quantity:
-                return Response({"error": "Requested quantity is too big"}, status=status.HTTP_400_BAD_REQUEST)
+            order.delete()
+            return Response({"error": "Something has happened"}, status=status.HTTP_400_BAD_REQUEST)
             
         # Create orders with order details
-        Order.objects.create(buyer= buyer_id, total_price = 0, status = 'PENDING')
         
         # Order details
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     @action(detail=False, methods=['post'])
     def update_status(self, request):

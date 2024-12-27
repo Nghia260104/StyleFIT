@@ -32,3 +32,23 @@ class OrderDetailViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def backend_create_orderdetails(self, data):
+        serializer = OrderDetailSerializer(data=data, many=True)
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    orderdetails = serializer.save()  # Save all validated data
+                return Response(
+                    {
+                        "message": "Order details created successfully",
+                        "orderdetails": serializer.data,  # Return serialized data
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
+            except Exception as e:
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

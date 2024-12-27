@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Discount
-from .serializers import DiscountSerializer, DiscountCreateSerializer, DiscountEditSerializer
+from .serializers import DiscountSerializer, DiscountCreateSerializer, DiscountEditSerializer, DiscountListSerializer
 
 class DiscountViewSet(viewsets.ModelViewSet):
     queryset = Discount.objects.all()
@@ -13,6 +13,8 @@ class DiscountViewSet(viewsets.ModelViewSet):
             return DiscountCreateSerializer
         elif self.action == 'edit_discount':
             return DiscountEditSerializer
+        elif self.action == 'list_discounts':
+            return DiscountListSerializer
         return DiscountSerializer
 
     @action(detail=False, methods=['post'])
@@ -94,6 +96,39 @@ class DiscountViewSet(viewsets.ModelViewSet):
                 "status": "error",
                 "message": "Discount not found"
             }, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'])
+    def list_discounts(self, request):
+        try:
+            # Get filters from query params
+            seller_id = request.query_params.get('seller')
+            season = request.query_params.get('season')
+            year = request.query_params.get('year')
+
+            # Start with all discounts
+            queryset = Discount.objects.all()
+
+            # Apply filters
+            if seller_id:
+                queryset = queryset.filter(seller_id=seller_id)
+            if season:
+                queryset = queryset.filter(season=season)
+            if year:
+                queryset = queryset.filter(year=year)
+
+            serializer = DiscountListSerializer(queryset, many=True)
+            
+            return Response({
+                "status": "success",
+                "count": len(serializer.data),
+                "discounts": serializer.data
+            }, status=status.HTTP_200_OK)
+
         except Exception as e:
             return Response({
                 "status": "error",

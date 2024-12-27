@@ -54,3 +54,35 @@ class LoginSerializer(serializers.Serializer):
         # }
         
         return user
+
+class PasswordChangeSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+    newpassword = serializers.CharField(required=True, write_only=True)
+    
+    def validate(self, data):
+        user = authenticate(username=data['username'], password=data['password'])
+        if not user:
+            raise serializers.ValidationError("Invalid credentials")
+        return data
+    
+class ProfileUpdateSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+    address = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    profile_name = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+
+    def validate(self, data):
+        user = authenticate(username=data['username'], password=data['password'])
+        if not user:
+            raise serializers.ValidationError("Invalid credentials")
+        return data
+
+    # class Meta:
+    #     model = Account
+    #     fields = ('profile_name', 'address')
+    #     extra_kwargs = {
+    #         'profile_name': {'required': False},
+    #         'address': {'required': False},
+    #     }
+    

@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Product
 from .serializers import ProductSerializer, ProductAddSerializer, ProductRemoveSerializer
+from review.models import Review
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -60,3 +61,31 @@ class ProductViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def get_rating(self, request, pk=None):
+        reviews = Review.objects.filter(product=pk)
+        products = Product.objects.get(id=pk)
+
+        if not products:
+            return Response(
+                {
+                    "error": "Product not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        if reviews.exists():
+            rating = 0
+            for review in reviews:
+                rating += review.rating
+            rating = rating / reviews.count()
+        else:
+            rating = 0.0
+
+        return Response(
+            {
+                "rating": rating
+            },
+            status=status.HTTP_200_OK
+        )

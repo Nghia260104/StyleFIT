@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Product
 from account.models import Account
+from review.models import Review
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,7 +37,16 @@ class ProductAddSerializer(serializers.ModelSerializer):
         if Product.objects.filter(seller=seller, name=data['name']).exists():
             raise serializers.ValidationError("Product already exists")
 
-        return data
+        reviews = Review.objects.filter(product=data['name'], seller=seller)
+        # if reviews.exists():
+        #     rating = 0
+        #     for review in reviews:
+        #         rating += review.rating
+        #     data['rating'] = rating / reviews.count()
+        # else:
+        #     data['rating'] = 0.0
+
+        # return data
     
 class ProductRemoveSerializer(serializers.ModelSerializer):
     class Meta:

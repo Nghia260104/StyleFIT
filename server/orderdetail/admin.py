@@ -5,3 +5,5 @@ from .models import OrderDetail
 class OrderDetailAdmin(admin.ModelAdmin):
     list_display = ('order', 'product', 'quantity')
     search_fields = ('order__id', 'product__name')
+
+    readonly_fields = ('order',)

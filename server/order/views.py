@@ -8,6 +8,7 @@ from product.models import Product
 from account.models import Account
 
 class OrderViewSet(ViewSet):
+    @action(detail=False, methods=['post'])
     def create(self, request):
         buyer_id = request.data.get('buyer')
         product_id = request.data.get('product')
@@ -28,7 +29,8 @@ class OrderViewSet(ViewSet):
         Order.objects.create(buyer= buyer_id, total_price = 0, status = 'PENDING')
         
         # Order details
-        
+    
+    @action(detail=False, methods=['post'])
     def update_status(self, request):
         account_id = request.data.get('account')
         order_id = request.data.get('order')

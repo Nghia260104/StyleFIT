@@ -10,6 +10,7 @@ from discount.models import Discount
 from orderdetail.models import OrderDetail
 from orderdetail.views import OrderDetailViewSet
 from django.db.models import Q
+from django.db import transaction
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -39,8 +40,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                 return Response({
                     "error": "Only customers can create orders"
                 }, status=status.HTTP_400_BAD_REQUEST)
-            
-            order = Order.objects.create(buyer = buyer, total_price = 0, status = 'PENDING')
             # serializer = OrderSerializer(data=order)
         except:
             return Response({
@@ -48,39 +47,64 @@ class OrderViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         queue = []
-        
         try:
-            print(product_id)
+            products = Product.objects.all().filter(id__in=product_id)
+        except:
+            return Response({"error": "There exist null product id"}, status=status.HTTP_400_BAD_REQUEST)
+        group_products = {}
+        
+        for product, quantity in zip(products, quantity):
+            if (product.seller not in group_products):
+                group_products[product.seller] = []
+            group_products[product.seller].append((product, quantity))
+            
+        try:
+            # max_price = 0
+            # total_price = 0
+            # for i in range(len(product_id)):
+            #     print('Get product')
+            #     product = Product.objects.get(id = product_id[i])
+            #     print('Check quantity')
+            #     if (product.quantity_in_stock < quantity[i]):
+            #         order.delete()
+            #         return Response({"error": "Quantity does not sufficient"}, status=status.HTTP_400_BAD_REQUEST)
+                
+            #     if (product.id in discount.product or product.category in discount.category):
+            #         max_price = max(max_price, product.price)
+            #     total_price += product.price
+            #     queue.append({"quantity": quantity[i], "order": order.id, "product": product_id[i]})
+            # print('Order detail')
+            # OrderDetailViewSet.backend_create_orderdetails(data=queue)
+            # if (max_price > 0):
+            #     max_price = int(discount.percentage * max_price / 100)
+            #     total_price = total_price - max_price
+            #     discount.used_number += 1
+            #     if (discount.limit <= discount.used_number):
+            #         discount.delete()
+            #     else:
+            #         discount.save()
+            # order.total_price = total_price
+            # order.save()
+            # print('Done')
             discount = Discount.objects.get(id = discount_id)
             max_price = 0
-            total_price = 0
-            for i in range(len(product_id)):
-                print('Get product')
-                product = Product.objects.get(id = product_id[i])
-                print('Check quantity')
-                if (product.quantity_in_stock < quantity[i]):
-                    order.delete()
-                    return Response({"error": "Quantity does not sufficient"}, status=status.HTTP_400_BAD_REQUEST)
-                
-                if (product.id in discount.product or product.category in discount.category):
-                    max_price = max(max_price, product.price)
-                total_price += product.price
-                queue.append({"quantity": quantity[i], "order": order.id, "product": product_id[i]})
-            print('Order detail')
-            OrderDetailViewSet.backend_create_orderdetails(data=queue)
-            if (max_price > 0):
-                max_price = int(discount.percentage * max_price / 100)
-                total_price = total_price - max_price
-                discount.used_number += 1
-                if (discount.limit <= discount.used_number):
-                    discount.delete()
-                else:
-                    discount.save()
-            order.total_price = total_price
-            order.save()
-            print('Done')
+            discount_order = None
+            with transaction.atomic():
+                for seller, product_detail in group_products.items():
+                    order = Order.objects.create(buyer = buyer, total_price = 0, status = "PENDING")
+                    total_price = 0
+                    for product, quantity in product_detail:
+                        total_price += product.price * quantity
+                        if max_price < product.price and (product.id in discount.product or product.category in discount.category):
+                            max_price = product.price
+                            discount_order = order
+                    order.total_price = total_price
+                    order.save()
+                if max_price > 0:
+                    discount_order.total_price -= max_price * discount.percentage / 100
+                    discount_order.save()
+            
         except:
-            order.delete()
             return Response({"error": "Something has happened"}, status=status.HTTP_400_BAD_REQUEST)
             
         # Create orders with order details

@@ -33,7 +33,7 @@ class OrderDetailViewSet(viewsets.ModelViewSet):
                 )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def backend_create_orderdetails(self, data):
+    def backend_create_orderdetails(data):
         serializer = OrderDetailSerializer(data=data, many=True)
         if serializer.is_valid():
             try:

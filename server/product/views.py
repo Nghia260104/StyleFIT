@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Product
-from .serializers import ProductSerializer, ProductAddSerializer
+from .serializers import ProductSerializer, ProductAddSerializer, ProductRemoveSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
@@ -12,6 +12,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'add_product':
             return ProductAddSerializer
+        elif self.action == 'remove_product':
+            return ProductRemoveSerializer
         return ProductSerializer
 
     @action(detail=False, methods=['post'])
@@ -29,6 +31,28 @@ class ProductViewSet(viewsets.ModelViewSet):
                         "price": product.price
                     },
                     status=status.HTTP_201_CREATED
+                )
+            except Exception as e:
+                return Response(
+                    {"error": str(e)},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['post'])
+    def remove_product(self, request):
+        serializer = ProductRemoveSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                product = Product.objects.get(name=serializer.validated_data['name'], seller=serializer.validated_data['seller'])
+                product.delete()
+                return Response(
+                    {
+                        "message": "Product removed successfully",
+                        "seller": product.seller.username,
+                        "name": product.name
+                    },
+                    status=status.HTTP_200_OK
                 )
             except Exception as e:
                 return Response(

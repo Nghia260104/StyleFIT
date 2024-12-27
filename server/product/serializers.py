@@ -38,3 +38,22 @@ class ProductAddSerializer(serializers.ModelSerializer):
 
         return data
     
+class ProductRemoveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['name', 'seller']
+        extra_kwargs = {
+            'name': {'write_only': True}
+        }
+
+    def validate(self, data):
+        seller = data['seller']
+        account_role = Account.objects.get(username=seller).role
+
+        if account_role != 'SELLER':
+            raise serializers.ValidationError("Only sellers can remove products")
+        
+        if not Product.objects.filter(seller=seller, name=data['name']).exists():
+            raise serializers.ValidationError("Product does not exist")
+
+        return data

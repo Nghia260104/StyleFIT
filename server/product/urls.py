@@ -4,4 +4,5 @@ from .views import ProductViewSet
 
 urlpatterns = [
     path('add/', ProductViewSet.as_view({'post': 'add_product'}), name='add_product'),
+    path('remove/', ProductViewSet.as_view({'post': 'remove_product'}), name='remove_product'),
 ]

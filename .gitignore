@@ -5,7 +5,11 @@ venv
 
 # Python
 __pycache__/
+test.py
 
 # Secured data
 .env
 /root/.env
+
+# Migration
+migrations/

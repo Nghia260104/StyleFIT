@@ -126,6 +126,12 @@ class OrderViewSet(viewsets.ModelViewSet):
         order_status = request.query_params.get('status', None)
         order_id = request.query_params.get('order', None)
         sort = request.query_params.get('sort', None)
+        seller_id = request.query_params.get('seller', None)
+        
+        if seller_id:
+            orders = Order.objects.filter(orderdetail__product__seller_id=seller_id, orderdetail__product__seller__role='SELLER').distinct()
+            serializer = OrderSerializer(orders, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
         filter = Q()
         if buyer_id:

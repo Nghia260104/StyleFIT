@@ -10,4 +10,4 @@ class Reply(models.Model):
     content = models.TextField()
 
     def __str__(self):
-        return f"Reply to review {self.review.product.name} by {self.seller.email}"  
+        return f"Reply to review {self.review.product.name} by {self.seller.username}"  

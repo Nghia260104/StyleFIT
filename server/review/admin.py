@@ -5,7 +5,7 @@ from .models import Review
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('product', 'content_preview', 'buyer', 'rating', 'created_at')
     list_filter = ('rating',)
-    search_fields = ('product__name', 'buyer__email', 'content')
+    search_fields = ('product__name', 'buyer__username', 'content')
     readonly_fields = ('created_at',)
 
     def content_preview(self, obj):

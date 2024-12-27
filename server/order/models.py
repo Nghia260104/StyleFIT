@@ -22,4 +22,4 @@ class Order(models.Model):
 # Cancelled: When the order is cancelled before it is shipped.
 
     def __str__(self):
-        return f"Order {self.id} by {self.buyer.email}"
+        return f"Order {self.id} by {self.buyer.username}"

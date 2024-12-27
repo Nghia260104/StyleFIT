@@ -8,3 +8,4 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'seller', 'price', 'quantity_in_stock', 'category', 'active')
     list_filter = ('category', 'active')
     search_fields = ('name', 'description', 'seller__email')
+    readonly_fields = ('seller',)

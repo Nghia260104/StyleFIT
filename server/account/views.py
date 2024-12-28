@@ -60,6 +60,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                     "phone": user.phone,
                     "address": user.address,
                     "profile_photo": user.profile_photo,
+                    "user_name": user.username
                 }
             }, status=status.HTTP_200_OK)
         return Response({

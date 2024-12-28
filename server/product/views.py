@@ -113,7 +113,8 @@ class ProductViewSet(viewsets.ModelViewSet):
                 "title": serializer.data[i]['name'],
                 "price": serializer.data[i]['price'],
                 "rating": average_rating,
-                "ratingcount": rating_count
+                "ratingcount": rating_count,
+                "id": serializer.data[i]['id'],
             })
 
         # Return the response
@@ -169,7 +170,9 @@ class ProductViewSet(viewsets.ModelViewSet):
                 "seller": username,
                 "price": serializer.data['price'],
                 "rating": average_rating,
-                "ratingcount": rating_count
+                "ratingcount": rating_count,
+                "id": serializer.data['id'],
+                "description": serializer.data['description'],
             },
             status=status.HTTP_200_OK
         )
